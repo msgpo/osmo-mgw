@@ -847,12 +847,16 @@ mgcp_header_done:
 			rate_ctr_inc(&rate_ctrs->ctr[MGCP_CRCX_FAIL_UNKNOWN_CALLID]);
 			return create_err_response(endp, 400, "CRCX", p->trans);
 		}
+	} else if (!endp->callid) {
+		/* Claim endpoint resources. This will also set the callid,
+		 * creating additional connections will only be possible if
+		 * the callid matches up (see above). */
+		rc = mgcp_endp_claim(endp, callid);
+		if (rc != 0) {
+			rate_ctr_inc(&rate_ctrs->ctr[MGCP_CRCX_FAIL_CLAIM]);
+			return create_err_response(endp, 502, "CRCX", p->trans);
+		}
 	}
-
-	/* Set the callid, creation of another connection will only be possible
-	 * when the callid matches up. (Connections are distinguished by their
-	 * connection ids) */
-	endp->callid = talloc_strdup(trunk->endpoints, callid);
 
 	snprintf(conn_name, sizeof(conn_name), "%s", callid);
 	_conn = mgcp_conn_alloc(trunk->endpoints, endp, MGCP_CONN_TYPE_RTP, conn_name);

@@ -64,6 +64,7 @@ static const struct rate_ctr_desc mgcp_crcx_ctr_desc[] = {
 	[MGCP_CRCX_FAIL_CODEC_NEGOTIATION] = { "crcx:codec_nego", "codec negotiation failure." },
 	[MGCP_CRCX_FAIL_BIND_PORT] = { "crcx:bind_port", "port bind failure." },
 	[MGCP_CRCX_FAIL_AVAIL] = { "crcx:unavailable", "endpoint unavailable." },
+	[MGCP_CRCX_FAIL_CLAIM] = { "crcx:claim", "endpoint can not be claimed." },
 };
 
 const static struct rate_ctr_group_desc mgcp_crcx_ctr_group_desc = {
