@@ -389,7 +389,7 @@ int mgcp_e1_endp_equip(struct mgcp_endpoint *endp, uint8_t ts, uint8_t ss, uint8
 
 	LOGPENDP(endp, DE1, LOGL_DEBUG, "adding i640 subchannel: ts=%u, bit_offset=%u, rate=%uk, num_bits=%lu\n", ts,
 		 offs, e1_rates[ss], endp->e1.scd.demux.num_bits);
-	endp->e1.sync_fi = osmo_trau_sync_alloc(endp, "trau-sync", sync_frame_out_cb, endp);
+	endp->e1.sync_fi = osmo_trau_sync_alloc(endp, "trau-sync", sync_frame_out_cb, OSMO_TRAU_SYNCP_16_FR_EFR, endp);
 	if (!endp->e1.sync_fi) {
 		LOGPENDP(endp, DE1, LOGL_ERROR, "adding i640 trau frame sync: failed!\n");
 		return -EINVAL;
