@@ -48,33 +48,6 @@
 
 static struct mgcp_config *cfg;
 
-static uint8_t flip_table[256];
-
-void init_flip_bits(void)
-{
-        int i,k;
-
-        for (i = 0 ; i < 256 ; i++) {
-                uint8_t sample = 0 ;
-                for (k = 0; k<8; k++) {
-                        if ( i & 1 << k ) sample |= 0x80 >>  k;
-                }
-                flip_table[i] = sample;
-        }
-}
-
-uint8_t *flip_buf_bits (uint8_t *buf , int len)
-{
-        int i;
-        uint8_t * start = buf;
-
-        for (i = 0 ; i < len; i++) {
-                buf[i] = flip_table[(uint8_t)buf[i]];
-        }
-
-        return start;
-}
-
 static const struct e1inp_line_ops dummy_e1_line_ops = {
 	.sign_link_up = NULL,
 	.sign_link_down = NULL,
@@ -242,7 +215,7 @@ void e1_send(struct e1inp_ts *ts, struct mgcp_trunk *trunk)
 	     osmo_hexdump_nospc(msg->data, msg->len > DEBUG_BYTES_MAX ? DEBUG_BYTES_MAX : msg->len));
 
 //      MUST NOT FLIP HERE!
-//	flip_buf_bits(msg->data, msg->len);
+//	osmo_revbytebits_buf(msg->data, msg->len);
 	msgb_enqueue(&ts->raw.tx_queue, msg);
 	return;
 skip:
@@ -279,7 +252,7 @@ void e1_recv_cb(struct e1inp_ts *ts, struct msgb *msg)
 
 	/* Hand data over to the I640 demultiplexer. */
 	//BUG: THE LOWER LAYER SHOULD FLIP BY ITSSELF!
-	flip_buf_bits(msg->data, msg->len);
+	osmo_revbytebits_buf(msg->data, msg->len);
 	osmo_i460_demux_in(&trunk->e1.i460_ts[ts->num - 1], msg->data, msg->len);
 
 	/* Trigger sending of pending E1 traffic */
@@ -300,8 +273,6 @@ int mgcp_e1_init(struct mgcp_trunk *trunk, uint8_t ts_nr)
 
 	struct e1inp_line *e1_line;
 	int rc;
-
-	init_flip_bits();
 
 	OSMO_ASSERT(ts_nr > 0 || ts_nr < 32);
 	cfg = trunk->cfg;
