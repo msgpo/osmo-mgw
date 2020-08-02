@@ -493,13 +493,13 @@ int mgcp_e1_send_rtp(struct mgcp_endpoint *endp, struct mgcp_rtp_codec *codec, s
 	LOGPENDP(endp, DE1, LOGL_DEBUG, "E1-i460-TX: enqueue %u bytes of RTP audio: %s\n", msg->len,
 		 osmo_hexdump(msgb_data(msg) + rtp_hdr_len, msg->len - rtp_hdr_len));
 	memset(&tf, 0, sizeof(tf));
+	tf.dir = OSMO_TRAU_DIR_DL;
 	rc = osmo_rtp2trau(&tf, msgb_data(msg) + rtp_hdr_len, msg->len - rtp_hdr_len, &st);
 	if (rc < 0) {
 		LOGPENDP(endp, DE1, LOGL_ERROR,
 			 "E1-i460-TX: failed to convert from RTP payload format to TRAU format\n");
 		goto skip;
 	}
-	tf.dir = OSMO_TRAU_DIR_DL;
 
 	rc = osmo_trau_frame_encode(msg_tf->data, msg_tf->data_len, &tf);
 	if (rc < 0) {
