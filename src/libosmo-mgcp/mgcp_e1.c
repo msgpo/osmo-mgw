@@ -54,7 +54,7 @@ static const struct e1inp_line_ops dummy_e1_line_ops = {
 	.sign_link = NULL,
 };
 
-static void e1_i460_mux_empty_cb(void *user_data)
+static void e1_i460_mux_empty_cb(struct osmo_i460_subchan *schan, void *user_data)
 {
 	struct mgcp_endpoint *endp = user_data;
 	struct msgb *msg = msgb_alloc(RTP_BUF_SIZE, "E1-idle-tx");
@@ -95,7 +95,7 @@ static void e1_i460_mux_empty_cb(void *user_data)
 }
 
 /* called by I.460 de-multeiplexer; feed output of I.460 demux into TRAU frame sync */
-static void e1_i460_demux_bits_cb(void *user_data, const ubit_t * bits, unsigned int num_bits)
+static void e1_i460_demux_bits_cb(struct osmo_i460_subchan *schan, void *user_data, const ubit_t * bits, unsigned int num_bits)
 {
 	struct mgcp_endpoint *endp = user_data;
 	LOGPENDP(endp, DE1, LOGL_DEBUG, "E1-i460-RX: receiving %u bits from subslot: %s ...\n", num_bits,
